@@ -3,10 +3,16 @@
 ## WaitGroup
 
 It has similar interface with `sync.WaitGroup`.
-But it will call `recover()` function in `wg.Done()` function to recover panic in goroutine.
-And `wg.Wait()` function will return `PanicError` if panic occurs.
+But it will call `recover()` function in `WaitGroup.Done()` function to recover panic in goroutine.
+And `WaitGroup.Wait()` function will return `PanicError` if panic occurs.
 
-**DO NOT re-use `WaitGroup` after `wg.Wait()` is called.**
+**DO NOT reuse `WaitGroup` after `WaitGroup.Wait()` is called.**
+
+## PanicError
+
+When panic occurs in a goroutine, deferred `wg.Done()` function recover the panic and send an error to internal channel.
+`WaitGroup.Wait()` function return a `PanicError` if the channel receive an error.
+If multiple panic errors occur, all errors can be accessed by `PanicError.Errors()` function.
 
 ## Example
 ```go
