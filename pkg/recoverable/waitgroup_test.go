@@ -14,7 +14,7 @@ func TestWaitGroup_Wait(t *testing.T) {
 		go func() {
 			defer wg.Done()
 		}()
-		as.NoError(wg.Wait())
+		as.Empty(wg.Wait())
 	})
 
 	t.Run("two panics", func(t *testing.T) {
@@ -33,9 +33,9 @@ func TestWaitGroup_Wait(t *testing.T) {
 			defer wg.Done()
 			panic("panic 2")
 		}()
-		err := wg.Wait()
-		as.Error(err)
-		for _, e := range err.(*PanicError).Errors() {
+		errs := wg.Wait()
+		as.NotEmpty(errs)
+		for _, e := range errs {
 			t.Logf("%+v", e)
 		}
 	})
