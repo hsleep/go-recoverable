@@ -1,8 +1,6 @@
 package recoverable
 
 import (
-	"fmt"
-	"github.com/pkg/errors"
 	"sync"
 )
 
@@ -22,11 +20,11 @@ func (wg *WaitGroup) Add(n int) {
 func (wg *WaitGroup) Done() {
 	defer wg.wg.Done()
 	if r := recover(); r != nil {
-		wg.ch <- errors.New(fmt.Sprintf("%v", r))
+		wg.ch <- toError(r)
 	}
 }
 
-func (wg *WaitGroup) Wait() error {
+func (wg *WaitGroup) Wait() {
 	go func() {
 		wg.wg.Wait()
 		close(wg.ch)
@@ -36,19 +34,6 @@ func (wg *WaitGroup) Wait() error {
 		errs = append(errs, err)
 	}
 	if len(errs) > 0 {
-		return &PanicError{errs: errs}
+		panic(errs)
 	}
-	return nil
-}
-
-type PanicError struct {
-	errs []error
-}
-
-func (e *PanicError) Error() string {
-	return fmt.Sprintf("panic errors: %v", e.errs)
-}
-
-func (e *PanicError) Errors() []error {
-	return e.errs
 }

@@ -1,6 +1,7 @@
 package recoverable
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,10 +15,19 @@ func TestWaitGroup_Wait(t *testing.T) {
 		go func() {
 			defer wg.Done()
 		}()
-		as.NoError(wg.Wait())
+		as.NotPanics(wg.Wait)
 	})
 
 	t.Run("two panics", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r != nil {
+				if sr, ok := r.([]error); ok {
+					for _, err := range sr {
+						fmt.Printf("%+v\n", err)
+					}
+				}
+			}
+		}()
 		var wg WaitGroup
 		wg.Add(1)
 		go func() {
@@ -33,10 +43,6 @@ func TestWaitGroup_Wait(t *testing.T) {
 			defer wg.Done()
 			panic("panic 2")
 		}()
-		err := wg.Wait()
-		as.Error(err)
-		for _, e := range err.(*PanicError).Errors() {
-			t.Logf("%+v", e)
-		}
+		wg.Wait()
 	})
 }
