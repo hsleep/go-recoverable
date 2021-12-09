@@ -1,6 +1,6 @@
 package recoverable
 
-// run f function, and if panic occurs rerun f
+// Runner will run f function, and rerun f if panic occurs in f
 func Runner(f func(), panicHandler func(e error)) {
 	running := true
 	for running {
