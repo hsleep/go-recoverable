@@ -1,7 +1,6 @@
 package recoverable
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,9 +13,9 @@ func TestRunner(t *testing.T) {
 		for i < 3 {
 			panic("panic")
 		}
-	}, func(e error) {
+	}, func(r interface{}) {
 		i++
-		fmt.Println(e)
+		t.Log(r)
 	})
 	as.Equal(3, i)
 }
